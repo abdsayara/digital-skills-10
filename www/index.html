@@ -2601,7 +2601,7 @@ const PL=$('#player');function drawModal(dt){const I=M.inst,F=I.F,dpr=Math.min(2
  if((syncT+=dt)>.15){syncT=0;sync()}}
 function toPage(e){const r=mcv.getBoundingClientRect(),t=M.tf,F=M.inst.F;return [(e.clientX-r.left-t.ox)/t.s+F[0],(e.clientY-r.top-t.oy)/t.s+F[1]]}
 
-const MPT=new Map(),zbar=document.createElement('div');zbar.id='zbar';zbar.innerHTML='<button data-z="1.5" title="تكبير">+</button><button data-z="0.67" title="تصغير">−</button><button data-z="0" title="الحجم الأصلي">⤢</button>';mview.appendChild(zbar);
+const MPT=new Map(),zbar=document.createElement('div');zbar.id='zbar';zbar.innerHTML='<button data-z="1.5" title="تكبير">+</button><button data-z="0.67" title="تصغير">−</button><button data-z="0" title="الحجم الأصلي">⤢</button>';
 function mClampPan(){const F=M.inst.F,W=mview.clientWidth,H=mview.clientHeight,s=Math.min(W/F[2],H/F[3])*.94*(M.z||1);const mx=Math.max(0,(F[2]*s-W)/2+40),my=Math.max(0,(F[3]*s-H)/2+40);M.px=Math.max(-mx,Math.min(mx,M.px||0));M.py=Math.max(-my,Math.min(my,M.py||0))}
 function mZoomAt(f,cx,cy){if(!M||M.dim3)return;const z0=M.z||1,z=Math.max(1,Math.min(6,z0*f)),k=z/z0,W=mview.clientWidth,H=mview.clientHeight;M.px=cx-W/2-(cx-W/2-(M.px||0))*k;M.py=cy-H/2-(cy-H/2-(M.py||0))*k;M.z=z;if(z===1){M.px=M.py=0}mClampPan()}
 zbar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!M)return;const f=+b.dataset.z;if(!f){M.z=1;M.px=M.py=0}else mZoomAt(f,mview.clientWidth/2,mview.clientHeight/2)});
@@ -2610,6 +2610,11 @@ mcv.addEventListener('pointerdown',e=>{MPT.set(e.pointerId,{x:e.clientX,y:e.clie
 mcv.addEventListener('pointermove',e=>{if(!MPT.has(e.pointerId)||!M||M.dim3)return;const pv=MPT.get(e.pointerId);MPT.set(e.pointerId,{x:e.clientX,y:e.clientY});const r=mcv.getBoundingClientRect();
  if(MPT.size>=2&&M.pinch){const [a,b]=[...MPT.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(M.pinch.d>0)mZoomAt(d/M.pinch.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);M.pinch.d=d;return}
  if(MPT.size===1&&!M.drag&&M.down&&(M.z||1)>1){M.px=(M.px||0)+e.clientX-pv.x;M.py=(M.py||0)+e.clientY-pv.y;mClampPan();if(Math.abs(e.clientX-M.down.sx)+Math.abs(e.clientY-M.down.sy)>8)M.down.moved=true}},true);
+function mToggle(cx,cy){if(!M||M.dim3)return;if((M.z||1)>1.05){M.z=1;M.px=M.py=0}else mZoomAt(2.2,cx,cy)}
+mcv.addEventListener('dblclick',e=>{const r=mcv.getBoundingClientRect();mToggle(e.clientX-r.left,e.clientY-r.top)});
+let mLastTap=null;mcv.addEventListener('pointerup',e=>{if(e.pointerType!=='touch'||MPT.size>1)return;const t=performance.now();if(mLastTap&&t-mLastTap.t<320&&Math.hypot(e.clientX-mLastTap.x,e.clientY-mLastTap.y)<30){const r=mcv.getBoundingClientRect();mToggle(e.clientX-r.left,e.clientY-r.top);mLastTap=null}else mLastTap={t,x:e.clientX,y:e.clientY}},true);
+document.addEventListener('keydown',e=>{if(!M||M.dim3||/INPUT|TEXTAREA|SELECT/.test(document.activeElement&&document.activeElement.tagName))return;const W=mview.clientWidth/2,H=mview.clientHeight/2;
+ if(e.key==='+'||e.key==='='){mZoomAt(1.25,W,H);e.preventDefault()}else if(e.key==='-'||e.key==='_'){mZoomAt(.8,W,H);e.preventDefault()}else if(e.key==='0'){M.z=1;M.px=M.py=0}});
 const mPtEnd=e=>{MPT.delete(e.pointerId);if(MPT.size<2&&M)M.pinch=null};mcv.addEventListener('pointerup',mPtEnd,true);mcv.addEventListener('pointercancel',mPtEnd,true);
 mcv.addEventListener('pointerdown',e=>{if(!M||M.book||M.dim3)return;const [x,y]=toPage(e);M.down={x,y,moved:false,sx:e.clientX,sy:e.clientY};
  if(M.inst.drag&&!M.quiz){const d={};const r=M.inst.drag(x,y,'down',d);if(r==='locked'){showInfo('<b>البرغي مشدود</b>اضغط «شدّ برغي التثبيت» لفكّه، فلا يتحرك الفك المتحرك وهو مثبت.');return}if(r){M.drag=d;try{mcv.setPointerCapture(e.pointerId)}catch(_){}}}});
