@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">المهارات الرقمية ١٠</string>
+    <string name="title_activity_main">المهارات الرقمية ١٠</string>
+    <string name="package_name">com.nexera.digitalskills10</string>
+    <string name="custom_url_scheme">com.nexera.digitalskills10</string>
+</resources>

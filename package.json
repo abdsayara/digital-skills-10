@@ -1,0 +1,1 @@
+{"name":"digital-skills-10","version":"1.0.0","private":true,"description":"المهارات الرقمية – الصف العاشر: كتاب تفاعلي","scripts":{"sync":"cap sync android"},"dependencies":{"@capacitor/android":"^7.6.10","@capacitor/cli":"^7.6.10","@capacitor/core":"^7.6.10"}}
