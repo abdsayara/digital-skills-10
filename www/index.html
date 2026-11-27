@@ -948,9 +948,9 @@ function codeScene(def){return ()=>{
  let cols=allV.filter(k=>!Array.isArray(steps[steps.length-1].v[k])||changes(k)>1);if(cols.length>6){const born=k=>steps.findIndex(s=>k in s.v),chg=k=>steps.filter((s,i)=>i&&k in s.v&&steps[i-1].v[k]!==s.v[k]).length;cols=allV.filter(k=>born(k)>steps.length/3||chg(k)>1).slice(-6)}
  const PORT=typeof innerWidth!=='undefined'&&innerWidth<=820&&innerHeight>innerWidth*1.15;
  let lh=26,rh=30,MR=Math.min(steps.length-1,PORT?12:14),VW,VH,codeH,tTop,codeR,conR,tabR;
- if(PORT){VW=600;const tgt=VW*Math.max(1,(innerHeight-330)/innerWidth),scrH=92,lay=()=>{const cH=40+lines.length*lh,sb=16+cH+12+scrH;return [cH,sb+30,sb+30+36+MR*rh+12]};
+ if(PORT){VW=640;const tgt=VW*Math.max(1,(innerHeight-330)/innerWidth),lay=()=>{const cH=40+lines.length*lh,sb=16+Math.max(cH,150);return [cH,sb+30,sb+30+36+MR*rh+12]};
   for(let g=0;g<60&&lay()[2]>tgt;g++){if(MR>8)MR--;else if(lh>20){lh--;rh=Math.max(26,rh-1)}else if(MR>5)MR--;else break}
-  [codeH,tTop,VH]=lay();codeR=[16,16,VW-16,16+codeH];conR=[16,16+codeH+12,VW-16,16+codeH+12+scrH];tabR=[16,tTop,VW-16,VH-8]}
+  [codeH,tTop,VH]=lay();const CX=Math.round(VW*.62),bh=Math.max(codeH,150);codeR=[16,16,CX,16+bh];conR=[CX+10,16,VW-16,16+bh];tabR=[16,tTop,VW-16,VH-8]}
  else{const lay=()=>{const cH=40+lines.length*lh,tT=Math.max(cH,170)+30;return [cH,tT,tT+40+MR*rh+16]};
   for(let g=0;g<60&&lay()[2]>520;g++){if(MR>8)MR--;else if(lh>19){lh--;rh=Math.max(24,rh-1)}else if(MR>6)MR--;else break}
   [codeH,tTop,VH]=lay();VW=Math.max(900,Math.round(VH*1.72));const CX=Math.round(VW*.53);codeR=[16,16,CX,16+codeH];conR=[CX+16,16,VW-16,16+Math.max(codeH,170)];tabR=[16,tTop,VW-16,VH-8]}
@@ -975,7 +975,7 @@ function codeScene(def){return ()=>{
    c.fillStyle='#0c1418';c.beginPath();c.roundRect(conR[0],conR[1],conR[2]-conR[0],conR[3]-conR[1],10);c.fill();
    txt(c,'الشاشة',conR[2]-12,conR[1]+14,{fs:12,col:'#7d9aa6',al:'right'});
    const ol=cur.o.replace(/\t/g,'   ').split('\n').filter((x,k,a)=>k<a.length-1||x);if(cur.err)ol.push('⚠ '+cur.err);
-   ol.slice(-Math.floor((conR[3]-conR[1]-30)/20)).forEach((o,k)=>{c.font='600 14px Consolas, monospace';const ar=hasAr(o);c.direction=ar?'rtl':'ltr';c.textAlign=ar?'right':'left';c.fillStyle=o.startsWith('⚠')?'#ff8a8a':'#7dfa9a';c.fillText(o,ar?conR[2]-14:conR[0]+12,conR[1]+36+k*20)});
+   ol.slice(-Math.floor((conR[3]-conR[1]-30)/20)).forEach((o,k)=>{c.font='600 14px Consolas, monospace';const ar=hasAr(o);c.direction=ar?'rtl':'ltr';c.textAlign=ar?'right':'left';c.fillStyle=o.startsWith('⚠')?'#ff8a8a':'#7dfa9a';c.fillText(o,ar?conR[2]-14:conR[0]+12,conR[1]+36+k*20,conR[2]-conR[0]-26)});
    // trace table (like activity 7)
    const CW=PORT?0:230,OW=PORT?110:150,hdr=['السطر',...(PORT?[]:['الكود']),...cols,'المخرج'],ws=[48,...(PORT?[]:[CW]),...cols.map(()=>Math.max(58,(tabR[2]-tabR[0]-48-CW-OW)/Math.max(1,cols.length))),OW],C0=PORT?1:2;const tot=ws.reduce((a,b)=>a+b,0),k0=(tabR[2]-tabR[0])/tot;
    const X=[];let xx=tabR[2];ws.forEach(w=>{X.push([xx-w*k0,xx]);xx-=w*k0});
