@@ -978,7 +978,7 @@ function codeScene(def){return ()=>{
    ol.slice(-Math.floor((conR[3]-conR[1]-30)/20)).forEach((o,k)=>{c.font='600 14px Consolas, monospace';const ar=hasAr(o);c.direction=ar?'rtl':'ltr';c.textAlign=ar?'right':'left';c.fillStyle=o.startsWith('⚠')?'#ff8a8a':'#7dfa9a';c.fillText(o,ar?conR[2]-14:conR[0]+12,conR[1]+36+k*20)});
    // trace table (like activity 7)
    const CW=PORT?0:230,OW=PORT?110:150,hdr=['السطر',...(PORT?[]:['الكود']),...cols,'المخرج'],ws=[48,...(PORT?[]:[CW]),...cols.map(()=>Math.max(58,(tabR[2]-tabR[0]-48-CW-OW)/Math.max(1,cols.length))),OW],C0=PORT?1:2;const tot=ws.reduce((a,b)=>a+b,0),k0=(tabR[2]-tabR[0])/tot;
-   const X=[];let xx=tabR[0];ws.forEach(w=>{X.push([xx,xx+w*k0]);xx+=w*k0});
+   const X=[];let xx=tabR[2];ws.forEach(w=>{X.push([xx-w*k0,xx]);xx-=w*k0});
    c.fillStyle='#0f7c8a';c.fillRect(tabR[0],tabR[1],tabR[2]-tabR[0],36);
    hdr.forEach((h,k)=>{const [a,b]=X[k];txt(c,h,(a+b)/2,tabR[1]+19,{fs:14,col:'#fff',dir:hasAr(h)?'rtl':'ltr',w:800})});
    const r0=Math.max(1,Math.min(st.i-MR+1,steps.length-MR));if(r0>1)txt(c,`↑ ${AD(r0-1)} صفوف سابقة مخفية`,tabR[0]+4,tabR[1]-10,{fs:12,col:'#6c8086',al:'left'});
