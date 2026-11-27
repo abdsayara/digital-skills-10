@@ -978,7 +978,7 @@ function codeScene(def){return ()=>{
    ol.slice(-Math.floor((conR[3]-conR[1]-30)/20)).forEach((o,k)=>{c.font='600 14px Consolas, monospace';const ar=hasAr(o);c.direction=ar?'rtl':'ltr';c.textAlign=ar?'right':'left';c.fillStyle=o.startsWith('⚠')?'#ff8a8a':'#7dfa9a';c.fillText(o,ar?conR[2]-14:conR[0]+12,conR[1]+36+k*20)});
    // trace table (like activity 7)
    const CW=PORT?0:230,OW=PORT?110:150,hdr=['السطر',...(PORT?[]:['الكود']),...cols,'المخرج'],ws=[48,...(PORT?[]:[CW]),...cols.map(()=>Math.max(58,(tabR[2]-tabR[0]-48-CW-OW)/Math.max(1,cols.length))),OW],C0=PORT?1:2;const tot=ws.reduce((a,b)=>a+b,0),k0=(tabR[2]-tabR[0])/tot;
-   const X=[];let xx=tabR[2];ws.forEach(w=>{X.push([xx-w*k0,xx]);xx-=w*k0});
+   const X=[];let xx=tabR[0];ws.forEach(w=>{X.push([xx,xx+w*k0]);xx+=w*k0});
    c.fillStyle='#0f7c8a';c.fillRect(tabR[0],tabR[1],tabR[2]-tabR[0],36);
    hdr.forEach((h,k)=>{const [a,b]=X[k];txt(c,h,(a+b)/2,tabR[1]+19,{fs:14,col:'#fff',dir:hasAr(h)?'rtl':'ltr',w:800})});
    const r0=Math.max(1,Math.min(st.i-MR+1,steps.length-MR));if(r0>1)txt(c,`↑ ${AD(r0-1)} صفوف سابقة مخفية`,tabR[0]+4,tabR[1]-10,{fs:12,col:'#6c8086',al:'left'});
@@ -986,7 +986,7 @@ function codeScene(def){return ()=>{
     c.fillStyle=curR?'#fff1c9':r%2?'#eef6f8':'#ffffff';c.fillRect(tabR[0],y,tabR[2]-tabR[0],rh);c.strokeStyle='#cfdcdc';c.lineWidth=1;c.strokeRect(tabR[0],y,tabR[2]-tabR[0],rh);
     X.forEach(([a,b])=>{c.beginPath();c.moveTo(a,y);c.lineTo(a,y+rh);c.stroke()});
     const cy=y+rh/2+1;txt(c,String(S.l),(X[0][0]+X[0][1])/2,cy,{fs:13,dir:'ltr',col:'#4c6268'});
-    if(!PORT){c.font='600 13px Consolas, monospace';c.direction='ltr';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#1f2a2e';c.fillText(lines[S.l-1].trim().slice(0,28),(X[1][0]+X[1][1])/2,cy);}
+    if(!PORT){c.font='600 13px Consolas, monospace';c.direction='ltr';c.textAlign='left';c.textBaseline='middle';c.fillStyle='#1f2a2e';c.fillText(lines[S.l-1].trim().slice(0,28),X[1][0]+10,cy);}
     if(!done)continue;
     cols.forEach((k,j)=>{const [a,b]=X[C0+j],hot=k in ch;c.save();c.beginPath();c.rect(a+2,y,b-a-4,rh);c.clip();if(hot){c.fillStyle='rgba(240,138,36,.25)';c.fillRect(a+1,y+1,b-a-2,rh-2)}c.font=`${hot?800:600} 14px Consolas, monospace`;c.fillStyle=S.err&&r===steps.length-1?'#9aa5ab':hot?'#b5531d':'#d1232a';c.textAlign='center';c.fillText(fmtV(S.v[k]),(a+b)/2,cy);c.restore()});
     const o=S.err?'⚠ خطأ':newOut(r),[a,b]=X[X.length-1];c.font='700 13px Consolas, Cairo, monospace';c.direction=hasAr(o)?'rtl':'ltr';c.fillStyle=S.err?'#c0392b':'#14864b';c.fillText(o?o.replace(/\n/g,' | ').slice(0,22):'-',(a+b)/2,cy)}
@@ -1077,8 +1077,8 @@ SCENES_EXTRA.ops=(mode)=>()=>{const F=RB(mode==='cmp'?[150,270,1250,720]:[150,11
  return {F,page:mode==='cmp'?14:12,st,parts:[],quiz:mode==='cmp'?[{q:'ما ناتج 8 >= 8؟',opts:['True','False'],a:0},{q:'ما ناتج 5 != 5؟',opts:['False','True'],a:0}]:[{q:'ما ناتج 17 // 5؟',opts:['3','3.4','2'],a:0},{q:'ما ناتج 17 % 5؟',opts:['2','3','3.4'],a:0}],
   auto(){},draw(c){const [x0,y0,W,H]=F,R=rows(),rh=(H-40)/R.length;c.fillStyle='#fff';c.fillRect(x0,y0,W,H);
    R.forEach(([n,op,v],k)=>{const y=y0+20+k*rh+rh/2;c.fillStyle=k%2?'#f3f8fa':'#e8f2f6';c.fillRect(x0+20,y-rh/2+3,W-40,rh-6);
-    txt(c,n,x0+W-40,y,{fs:Math.min(30,rh*.42),al:'right'});c.font=`700 ${Math.min(34,rh*.5)}px Consolas, monospace`;c.direction='ltr';c.textAlign='center';c.textBaseline='middle';c.fillStyle='#1f6fb2';c.fillText(`${st.a} ${op} ${st.b}`,x0+W*.48,y);
-    const vs=fmt(v),bad=typeof v==='string'&&/Error|كبير/.test(v);c.fillStyle=bad?'#c0392b':typeof v==='boolean'?(v?'#14864b':'#c0392b'):'#1f2a2e';c.font=`800 ${Math.min(34,rh*.5)}px Consolas, monospace`;c.fillText(vs,x0+W*.15,y)})},
+    txt(c,n,x0+W-40,y,{fs:Math.min(30,rh*.42),al:'right'});c.font=`700 ${Math.min(34,rh*.5)}px Consolas, monospace`;c.direction='ltr';c.textAlign='left';c.textBaseline='middle';c.fillStyle='#1f6fb2';const ex=`${st.a} ${op} ${st.b}`,ex0=x0+70;c.fillText(ex,ex0,y);const exw=c.measureText(ex).width;c.fillStyle='#9aa5ab';c.fillText(' = ',ex0+exw,y);const vx=ex0+exw+c.measureText(' = ').width;
+    const vs=fmt(v),bad=typeof v==='string'&&/Error|كبير/.test(v);c.fillStyle=bad?'#c0392b':typeof v==='boolean'?(v?'#14864b':'#c0392b'):'#1f2a2e';c.font=`800 ${Math.min(34,rh*.5)}px Consolas, monospace`;c.textAlign='left';c.fillText(vs,vx,y)})},
   readout(){const {a,b}=st;return st.mode==='arith'?`<span class="f" dir="ltr">${a} // ${b}</span> تقسم ثم تأخذ الجزء الصحيح (للأسفل)، و<span class="f" dir="ltr">${a} % ${b}</span> هو الباقي.<br>تحقق: ${b?`<span dir="ltr">${b} × ${fdiv(a,b)} + ${pmod(a,b)} = ${a}</span>`:'لا قسمة على صفر'}<span class="add">مع الأعداد السالبة تقرّب // نحو الأصغر، كما في بايثون.</span>`:'ناتج كل مقارنة قيمة منطقية: True أو False.'},
   controls(){return [{k:'range',label:'العدد الأول a',min:-20,max:30,get:()=>st.a,set:v=>st.a=v,fmt:v=>String(v)},{k:'range',label:'العدد الثاني b',min:-10,max:12,get:()=>st.b,set:v=>st.b=v,fmt:v=>String(v)},
    {k:'btns',label:'النوع',items:[{label:'عمليات حسابية',f:()=>st.mode='arith'},{label:'عوامل المقارنة',f:()=>st.mode='cmp'}]},{k:'btns',label:'أمثلة الكتاب',items:[{label:'15 و 2',f:()=>{st.a=15;st.b=2}},{label:'29 و 12 (الشهور)',f:()=>{st.a=29;st.b=12}},{label:'8 و 8',f:()=>{st.a=8;st.b=8}}]}]}}};
