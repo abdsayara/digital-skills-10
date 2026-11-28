@@ -2260,7 +2260,9 @@ function layout(){
  slots.L.style.cssText=`left:0;width:${pw}px;height:${ph}px;display:${single?'none':''}`;
  slots.R.style.cssText=`left:${pw}px;width:${pw}px;height:${ph}px;display:${single?'none':''}`;
  slots.S.style.cssText=`left:0;width:${pw}px;height:${ph}px;display:${single?'':'none'}`;
- setZoom(1,0,0,false);show()}
+ fitW(false);show()}
+function FZ(){if(single)return 1;const z=Math.min(3,stage.clientWidth*.94/Math.max(1,book.offsetWidth));return z>1.03?z:1}
+function fitW(anim){const z=FZ();if(z<=1){setZoom(1,0,0,anim);return}const sw=stage.clientWidth,bx=zoomer.offsetLeft,by=zoomer.offsetTop,W=book.offsetWidth*z;setZoom(z,(sw-W)/2-bx,-by+8,anim)}
 function put(s,p){s.innerHTML='';if(p!=null){loadImg(p);s.appendChild(pageEls[p]);fitPage(p)}}
 function preload(i){pagesOf(views[i]).forEach(loadImg)}
 function show(){const v=views[vi];if(single)put(slots.S,v.S);else{put(slots.L,v.L);put(slots.R,v.R)}upd();preload(vi+1);preload(vi-1)}
@@ -2296,8 +2298,8 @@ function startFlip(dir){
    const st=n=>{const u=Math.min(1,(n-t0)/dur);ctl.set(from+(to-from)*ease(u));u<1?requestAnimationFrame(st):res()};requestAnimationFrame(st)})},
   async finish(ok){await ctl.animate(ok?1:0);leaf.remove();shadowEl.style.opacity=0;if(ok){commit();vi=ni;preload(vi+1)}else cancel();busy=false;upd()}};
  ctl.set(0);return ctl}
-async function go(d){if(Z.z>1)setZoom(1,0,0,true);const c=startFlip(d);if(c)await c.finish(true)}
-function jump(i){if(busy||i<0||i>=views.length||i===vi)return;setZoom(1,0,0,false);vi=i;show()}
+async function go(d){fitW(true);const c=startFlip(d);if(c)await c.finish(true)}
+function jump(i){if(busy||i<0||i>=views.length||i===vi)return;fitW(false);vi=i;show()}
 $('#bNext').onclick=()=>go(1);$('#bPrev').onclick=()=>go(-1);
 addEventListener('keydown',e=>{if($('#modal').classList.contains('on')){if(e.key==='Escape')closeModal();return}if(e.key==='ArrowLeft')go(1);if(e.key==='ArrowRight')go(-1)});
 
@@ -2307,13 +2309,13 @@ addEventListener('keydown',e=>{if($('#modal').classList.contains('on')){if(e.key
 const Z={z:1,tx:0,ty:0};
 function clampT(z,tx,ty){const sw=stage.clientWidth,sh=stage.clientHeight,bx=zoomer.offsetLeft,by=zoomer.offsetTop,W=book.offsetWidth*z,H=book.offsetHeight*z;
  tx=W<=sw?(sw-W)/2-bx:Math.min(-bx,Math.max(sw-bx-W,tx));ty=H<=sh?(sh-H)/2-by:Math.min(-by,Math.max(sh-by-H,ty));return [tx,ty]}
-function setZoom(z,tx,ty,anim){z=Math.max(1,Math.min(4,z));[tx,ty]=z===1?[0,0]:clampT(z,tx,ty);Z.z=z;Z.tx=tx;Z.ty=ty;
+function setZoom(z,tx,ty,anim){z=Math.max(typeof FZ==='function'?FZ():1,Math.min(4,z));[tx,ty]=z===1?[0,0]:clampT(z,tx,ty);Z.z=z;Z.tx=tx;Z.ty=ty;
  zoomer.classList.toggle('anim',!!anim);zoomer.style.transform=z===1?'':`translate(${tx}px,${ty}px) scale(${z})`;
- $('#bZoom').classList.toggle('on',z>1);$('#bZoom .lbl').textContent=z>1?'تصغير':'تكبير';
+ const zf=typeof FZ==='function'?FZ():1;$('#bZoom').classList.toggle('on',z>zf+.01);$('#bZoom .lbl').textContent=z>zf+.01?'تصغير':'تكبير';
  const zl=$('#zlab');zl.textContent=Math.round(z*100)+'%';zl.style.opacity=z>1?1:0;clearTimeout(zl._t);zl._t=setTimeout(()=>zl.style.opacity=0,900)}
 function zoomAt(z,cx,cy,anim){const r=stage.getBoundingClientRect(),px=cx-r.left,py=cy-r.top,bx=zoomer.offsetLeft,by=zoomer.offsetTop;
  const qx=(px-bx-Z.tx)/Z.z,qy=(py-by-Z.ty)/Z.z;z=Math.max(1,Math.min(4,z));setZoom(z,px-bx-qx*z,py-by-qy*z,anim)}
-$('#bZoom').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(Z.z>=2.9?1:Z.z<1.9?2:3,r.left+r.width/2,r.top+r.height/2,true)};
+$('#bZoom').onclick=()=>{const r=stage.getBoundingClientRect();const f=FZ();if(Z.z>f+.01){fitW(true);return}zoomAt(Math.min(4,Math.max(2,f*1.6)),r.left+r.width/2,r.top+r.height/2,true)};
 stage.addEventListener('wheel',e=>{e.preventDefault();if(e.ctrlKey){zoomAt(Z.z*Math.exp(-e.deltaY*.01),e.clientX,e.clientY,false)}else if(Z.z>1){setZoom(Z.z,Z.tx-e.deltaX,Z.ty-e.deltaY,false)}},{passive:false});
 
 /* =========================================================
@@ -2332,7 +2334,7 @@ stage.addEventListener('pointermove',e=>{if(!P.has(e.pointerId)||!G)return;P.set
   setZoom(z,mx-bx-G.q[0]*z,my-by-G.q[1]*z,false);return}
  const dx=e.clientX-G.x,dy=e.clientY-G.y;
  if(G.mode==='pending'){if(Math.hypot(dx,dy)<10)return;
-  if(Z.z>1)G.mode='pan';
+  if(Z.z>1&&!(Z.z<=FZ()+.01&&Math.abs(dx)>Math.abs(dy)*1.1&&!busy))G.mode='pan';
   else if(Math.abs(dx)>Math.abs(dy)*1.1&&!busy){G.dir=dx>0?1:-1;G.ctl=startFlip(G.dir);G.mode=G.ctl?'flip':'none'}else G.mode='none'}
  if(G.mode==='pan')setZoom(Z.z,G.tx+dx,G.ty+dy,false);
  if(G.mode==='flip')G.ctl.set(Math.max(0,Math.min(1,dx*G.dir/(pw*(single?.9:1.25)))))});
@@ -2344,7 +2346,7 @@ function endPointer(e){if(!P.has(e.pointerId))return;P.delete(e.pointerId);if(!G
   const z=g.tgt.closest&&g.tgt.closest('[data-q]'),hs=g.tgt.closest&&g.tgt.closest('.hs');const now=performance.now();
   if(now-lastTap<320&&Math.hypot(e.clientX-lastTapXY[0],e.clientY-lastTapXY[1])<30){
    clearTimeout(openTimer);if(lastTapId)setShown(lastTapId,!shown.has(lastTapId));
-   zoomAt(Z.z>1?1:2.2,e.clientX,e.clientY,true);lastTap=0;lastTapId=null;updPageBtn();return}
+   {const f=FZ();if(Z.z>f+.01)fitW(true);else zoomAt(Math.min(4,Math.max(2.2,f*1.6)),e.clientX,e.clientY,true)}lastTap=0;lastTapId=null;updPageBtn();return}
   lastTap=now;lastTapXY=[e.clientX,e.clientY];lastTapId=null;
   if(z){const id=z.getAttribute('data-q');lastTapId=id;setShown(id,!shown.has(id));updPageBtn();if(groups[id].note){shown.has(id)?openNote(id):closeNote()}}
   else if(hs){clearTimeout(openTimer);openTimer=setTimeout(()=>openModal(hsList.find(h=>h.id===hs.dataset.h)),330)}}}
