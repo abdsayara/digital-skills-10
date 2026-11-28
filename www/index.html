@@ -2261,7 +2261,7 @@ function layout(){
  slots.R.style.cssText=`left:${pw}px;width:${pw}px;height:${ph}px;display:${single?'none':''}`;
  slots.S.style.cssText=`left:0;width:${pw}px;height:${ph}px;display:${single?'':'none'}`;
  fitW(false);show()}
-function FZ(){if(single)return 1;const z=Math.min(3,stage.clientWidth*.94/Math.max(1,book.offsetWidth));return z>1.03?z:1}
+function FZ(){return 1;const z=Math.min(3,stage.clientWidth*.94/Math.max(1,book.offsetWidth));return z>1.03?z:1}
 function fitW(anim){const z=FZ();if(z<=1){setZoom(1,0,0,anim);return}const sw=stage.clientWidth,bx=zoomer.offsetLeft,by=zoomer.offsetTop,W=book.offsetWidth*z;setZoom(z,(sw-W)/2-bx,-by+8,anim)}
 function put(s,p){s.innerHTML='';if(p!=null){loadImg(p);s.appendChild(pageEls[p]);fitPage(p)}}
 function preload(i){pagesOf(views[i]).forEach(loadImg)}
@@ -2298,7 +2298,7 @@ function startFlip(dir){
    const st=n=>{const u=Math.min(1,(n-t0)/dur);ctl.set(from+(to-from)*ease(u));u<1?requestAnimationFrame(st):res()};requestAnimationFrame(st)})},
   async finish(ok){await ctl.animate(ok?1:0);leaf.remove();shadowEl.style.opacity=0;if(ok){commit();vi=ni;preload(vi+1)}else cancel();busy=false;upd()}};
  ctl.set(0);return ctl}
-async function go(d){fitW(true);const c=startFlip(d);if(c)await c.finish(true)}
+async function go(d){if(Z.z>FZ()+.01)fitW(true);else if(Z.z>1)setZoom(Z.z,Z.tx,-zoomer.offsetTop+8,true);const c=startFlip(d);if(c)await c.finish(true)}
 function jump(i){if(busy||i<0||i>=views.length||i===vi)return;fitW(false);vi=i;show()}
 $('#bNext').onclick=()=>go(1);$('#bPrev').onclick=()=>go(-1);
 addEventListener('keydown',e=>{if($('#modal').classList.contains('on')){if(e.key==='Escape')closeModal();return}if(e.key==='ArrowLeft')go(1);if(e.key==='ArrowRight')go(-1)});
@@ -2309,7 +2309,7 @@ addEventListener('keydown',e=>{if($('#modal').classList.contains('on')){if(e.key
 const Z={z:1,tx:0,ty:0};
 function clampT(z,tx,ty){const sw=stage.clientWidth,sh=stage.clientHeight,bx=zoomer.offsetLeft,by=zoomer.offsetTop,W=book.offsetWidth*z,H=book.offsetHeight*z;
  tx=W<=sw?(sw-W)/2-bx:Math.min(-bx,Math.max(sw-bx-W,tx));ty=H<=sh?(sh-H)/2-by:Math.min(-by,Math.max(sh-by-H,ty));return [tx,ty]}
-function setZoom(z,tx,ty,anim){z=Math.max(typeof FZ==='function'?FZ():1,Math.min(4,z));[tx,ty]=z===1?[0,0]:clampT(z,tx,ty);Z.z=z;Z.tx=tx;Z.ty=ty;
+function setZoom(z,tx,ty,anim){z=Math.max(1,Math.min(4,z));[tx,ty]=z===1?[0,0]:clampT(z,tx,ty);Z.z=z;Z.tx=tx;Z.ty=ty;
  zoomer.classList.toggle('anim',!!anim);zoomer.style.transform=z===1?'':`translate(${tx}px,${ty}px) scale(${z})`;
  const zf=typeof FZ==='function'?FZ():1;$('#bZoom').classList.toggle('on',z>zf+.01);$('#bZoom .lbl').textContent=z>zf+.01?'تصغير':'تكبير';
  const zl=$('#zlab');zl.textContent=Math.round(z*100)+'%';zl.style.opacity=z>1?1:0;clearTimeout(zl._t);zl._t=setTimeout(()=>zl.style.opacity=0,900)}
