@@ -28,7 +28,9 @@ jobs:
         run: npm ci
 
       - name: Copy the book into the Android project
-        run: npx cap sync android
+        run: |
+          rm -rf www/math10
+          npx cap sync android
 
       - name: Build APK
         working-directory: android
