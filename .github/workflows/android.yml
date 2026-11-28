@@ -34,8 +34,17 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon 2>&1 | tee ../build.log
 
+      - name: Publish build log on failure
+        if: failure()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: buildlog
+          name: build log
+          files: build.log
+          prerelease: true
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk digital-skills-10.apk
 
