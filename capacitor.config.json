@@ -1,5 +1,8 @@
 {
   "appId": "com.nexera.digitalskills10",
   "appName": "المهارات الرقمية ١٠",
-  "webDir": "www"
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "force"
+  }
 }
